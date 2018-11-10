@@ -153,12 +153,20 @@ lept_type lept_get_type(const lept_value* v) {
 }
 
 int lept_get_boolean(const lept_value* v) {
-    /* \TODO */
-    return 0;
+    assert(v != NULL && (v->type == LEPT_TRUE || v->type == LEPT_FALSE));
+    /**
+     *  布尔类型的类型也是其值
+     * v->type = true时，返回 1
+     * v->type = false时，返回 0
+     */
+    return v->type == LEPT_TRUE;
 }
 
 void lept_set_boolean(lept_value* v, int b) {
     /* \TODO */
+    assert(v != NULL);
+    lept_free(v);
+    v->type = b == LEPT_TRUE ? LEPT_TRUE : LEPT_FALSE;
 }
 
 double lept_get_number(const lept_value* v) {
@@ -167,7 +175,11 @@ double lept_get_number(const lept_value* v) {
 }
 
 void lept_set_number(lept_value* v, double n) {
-    /* \TODO */
+    assert(v != NULL);
+    lept_free(v);
+    v->u.n = n;
+    v->type = LEPT_NUMBER;
+
 }
 
 const char* lept_get_string(const lept_value* v) {
