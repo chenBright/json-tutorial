@@ -186,11 +186,14 @@ static void test_access_boolean() {
     lept_value v;
     lept_init(&v);
     /* test true */
-    lept_set_boolean(&v, LEPT_TRUE);
+    /* 测试设置其他类型时，有没有调用 `lept_free()` 去释放内存 */
+    lept_set_string(&v, "a", 1); /* 会导致内存泄漏 */
+    lept_set_boolean(&v, 1);
     EXPECT_TRUE(lept_get_boolean(&v));
     /* test false */
-    lept_set_boolean(&v, LEPT_FALSE);
+    lept_set_boolean(&v, 0);
     EXPECT_FALSE(lept_get_boolean(&v));
+    lept_free(&v);
 }
 
 static void test_access_number() {
@@ -198,6 +201,8 @@ static void test_access_number() {
     lept_value v;
     lept_init(&v);
 
+    /* 测试设置其他类型时，有没有调用 `lept_free()` 去释放内存 */
+    lept_set_string(&v, "a", 1); /* 会导致内存泄漏 */
     n = 5;
     lept_set_number(&v, n);
     EXPECT_EQ_DOUBLE(lept_get_number(&v), n);
