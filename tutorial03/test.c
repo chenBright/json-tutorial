@@ -107,10 +107,8 @@ static void test_parse_number() {
 static void test_parse_string() {
     TEST_STRING("", "\"\"");
     TEST_STRING("Hello", "\"Hello\"");
-#if 0
     TEST_STRING("Hello\nWorld", "\"Hello\\nWorld\"");
     TEST_STRING("\" \\ / \b \f \n \r \t", "\"\\\" \\\\ \\/ \\b \\f \\n \\r \\t\"");
-#endif
 }
 
 #define TEST_ERROR(error, json)\
@@ -163,19 +161,15 @@ static void test_parse_missing_quotation_mark() {
 }
 
 static void test_parse_invalid_string_escape() {
-#if 0
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\v\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\'\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\0\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_ESCAPE, "\"\\x12\"");
-#endif
 }
 
 static void test_parse_invalid_string_char() {
-#if 0
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_CHAR, "\"\x01\"");
     TEST_ERROR(LEPT_PARSE_INVALID_STRING_CHAR, "\"\x1F\"");
-#endif
 }
 
 static void test_access_null() {
@@ -188,12 +182,38 @@ static void test_access_null() {
 }
 
 static void test_access_boolean() {
-    /* \TODO */
     /* Use EXPECT_TRUE() and EXPECT_FALSE() */
+    lept_value v;
+    lept_init(&v);
+    /* test true */
+    /* 测试设置其他类型时，有没有调用 `lept_free()` 去释放内存 */
+    lept_set_string(&v, "a", 1); /* 会导致内存泄漏 */
+    lept_set_boolean(&v, 1);
+    EXPECT_TRUE(lept_get_boolean(&v));
+    /* test false */
+    lept_set_boolean(&v, 0);
+    EXPECT_FALSE(lept_get_boolean(&v));
+    lept_free(&v);
 }
 
 static void test_access_number() {
-    /* \TODO */
+    double n;
+    lept_value v;
+    lept_init(&v);
+
+    /* 测试设置其他类型时，有没有调用 `lept_free()` 去释放内存 */
+    lept_set_string(&v, "a", 1); /* 会导致内存泄漏 */
+    n = 5;
+    lept_set_number(&v, n);
+    EXPECT_EQ_DOUBLE(lept_get_number(&v), n);
+
+    n = 0;
+    lept_set_number(&v, n);
+    EXPECT_EQ_DOUBLE(lept_get_number(&v), n);
+
+    n = 1E10;
+    lept_set_number(&v, n);
+    EXPECT_EQ_DOUBLE(lept_get_number(&v), n);
 }
 
 static void test_access_string() {
